@@ -1,0 +1,323 @@
+﻿@page "/books"
+
+@using BlazorApp.Data
+@using BlazorApp.Models
+@using System.Globalization
+@inject DataService DS
+
+<h3>Authors</h3>
+
+@if (authors == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <select @onchange="OnSelect">
+                    <option hidden disabled selected value=""></option>
+                    @foreach (Author author in authors)
+                    {
+                        <option value=@author.Id>@author.GivenName @author.Surname</option>
+                    }
+                </select>
+            </div>
+            <div class="col">
+                <button class="btn btn-primary" @onclick="AddAuthor">Add New Author</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (author1 == null)
+{
+    <p>Select an author for more detail</p>
+}
+else
+{
+    <p><b>Full Name:</b> @author1.GivenName @author1.Surname</p>
+    <p><b>Gender:</b> @author1.Gender</p>
+    <p><b>Nationality:</b> @author1.Nationality</p>
+    <p><b>Date of Birth:</b> @author1.Birthday.Value.ToString("d.M.yyyy")</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Page Count</th>
+                <th>Publisher</th>
+                <th>Publication Date</th>
+                <th>Price</th>
+                <th>In stock</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Name</td>
+                    <td>@book.Description</td>
+                    <td>@book.PageCount</td>
+                    <td>@DS.GetPNameByBookPID(book.PublisherId)</td>
+                    <td>@book.PublicationDate.Value.ToString("d.M.yyyy")</td>
+                    <td>@book.Price.Value.ToString("C", CultureInfo.CurrentCulture)</td>
+                    <td>@book.InStock</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="@(async () => await DeleteConfirm(book.Id))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-block btn-primary" @onclick="AddBook">Add New Book</button>
+}
+
+@if (isAdd)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add new book for @author1.GivenName @author1.Surname</h3>
+                    <button type="button" class="close" @onclick="CloseModal">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="Name" class="control-label">Book Name</label>
+                            <input for="Name" class="form-control" @bind="@nbook.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Description" class="control-label">Description</label>
+                            <textarea for="Description" class="form-control" @bind="@nbook.Description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="Pages" class="control-label">Page Count</label>
+                            <input type="number" class="form-control" @bind="@nbook.PageCount" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Publisher" class="control-label">Publisher</label>
+                            <select for="Publisher" class="form-control" @bind="@nbook.PublisherId">
+                                @foreach (var pub in pubs)
+                                {
+                                    <option value="@pub.Id">@pub.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Date" class="control-label">Publication Date</label>
+                            <input for="Date" type="date" class="form-control" @bind="@nbook.PublicationDate" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Price" class="control-label">Price</label>
+                            <input for="Price" type="number" class="form-control" step="0.05" @bind="@nbook.Price" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Stock" class="control-label">In stock</label>
+                            <input for="Stock" type="number" class="form-control" @bind="@nbook.InStock" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-info" @onclick="@(async () => await SaveBook())">Save</button>
+                    <button class="btn btn-warning" @onclick="CloseModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isAddA)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add a new author</h3>
+                    <button type="button" class="close" @onclick="CloseModal">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="GName" class="control-label">Given Name</label>
+                            <input for="GName" class="form-control" @bind="@nauthor.GivenName" />
+                        </div>
+                        <div class="form-group">
+                            <label for="SName" class="control-label">Surname</label>
+                            <input for="SName" class="form-control" @bind="@nauthor.Surname" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Publisher" class="control-label">Gender</label>
+                            <select for="Publisher" class="form-control" @bind="@nauthor.Gender">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Nationality" class="control-label">Nationality</label>
+                            <input for="Nationality" class="form-control" @bind="@nauthor.Nationality" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Date" class="control-label">Date of birth</label>
+                            <input for="Date" type="date" class="form-control" @bind="@nauthor.Birthday" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-info" @onclick="@(async () => await SaveAuthor())">Save</button>
+                    <button class="btn btn-warning" @onclick="CloseModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isDelete)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Delete Book: @dbook.Name</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>YOU SURE YOU WANT DELETE @dbook.Name? YOU KNOW WHO ALSO DELETED BOOKS? THE NAZIS, THAT'S WHO!</h4>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" @onclick="@(async () => await DeleteBook(dbook.Id))" data-dismiss="modal">YES</button>
+                    <button class="btn btn-warning" @onclick="CloseModal">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private List<Book> books;
+    private List<Author> authors;
+    private List<Publisher> pubs;
+    private Author author1;
+    private Book nbook;
+    private Book dbook;
+    private Author nauthor;
+    private string[] pubnames;
+    private Boolean isAdd = false;
+    private Boolean isAddA = false;
+    private Boolean isDelete = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAuthors();
+        await GetPublishers();
+    }
+
+    protected async Task GetAuthors()
+    {
+        authors = await DS.GetAuthors();
+    }
+
+    protected async Task GetPublishers()
+    {
+        pubs = await DS.GetPublishers();
+    }
+
+    protected async void OnSelect(ChangeEventArgs e)
+    {
+        int id = int.Parse(e.Value.ToString());
+        author1 = DS.AuthorDetails(id);
+        await GetBooksByAuthor(id);
+        @*await GetPubNames();*@
+    }
+
+    protected async Task GetBooksByAuthor(int id)
+    {
+        books = await DS.GetBooksByAID(id);
+    }
+
+    protected async Task GetPubNames()
+    {
+        foreach (var book in books)
+        {
+            pubnames[book.Id] = await DS.GetPNameByBookPIDAsync(book.PublisherId);
+        }
+    }
+
+    protected void AddBook()
+    {
+        this.isAdd = true;
+        nbook = new();
+    }
+
+    protected async Task SaveBook()
+    {
+        int id = await DS.GetLastBID();
+        id++;
+        nbook.Id = id;
+        nbook.AuthorId = author1.Id;
+
+        await Task.Run(() =>
+        {
+            DS.Create(nbook);
+        });
+
+        @*DS.CreateAsync(nbook);*@
+
+        this.isAdd = false;
+        await GetBooksByAuthor(author1.Id);
+    }
+
+    protected async Task DeleteConfirm(int id)
+    {
+        dbook = await DS.BookDetails(id);
+        this.isDelete = true;
+    }
+
+    protected async Task DeleteBook(int id)
+    {
+        await Task.Run(() =>
+        {
+            DS.Delete(id);
+        });
+        this.isDelete = false;
+        await GetBooksByAuthor(author1.Id);
+    }
+
+    protected void AddAuthor()
+    {
+        this.isAddA = true;
+        nauthor = new();
+    }
+
+    protected async Task SaveAuthor()
+    {
+        int id = await DS.GetLastAID();
+        id++;
+        nauthor.Id = id;
+
+        await Task.Run(() =>
+        {
+            DS.CreateA(nauthor);
+        });
+
+        this.isAddA = false;
+        await GetAuthors();
+    }
+
+    protected void CloseModal()
+    {
+        this.isAdd = false;
+        this.isAddA = false;
+        this.isDelete = false;
+    }
+}
