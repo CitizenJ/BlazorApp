@@ -28,7 +28,7 @@
    - Publisher.cs: As above, but for publishers.
    - BlazorContext.cs: A "database context", this class is the one that actually connects to the database, and is used by DataAccessLayer.cs to execute queries.
  - Pages
-   - Books.razor: This is the webpage the user actually sees and interacts with. Most code in the page will call functions in the Dataservice.cs, which instanced with @inject.
+   - Books.razor: This is the webpage the user actually sees and interacts with. Most code in the page will call functions in the Dataservice.cs, which is instanced with @inject.
 
  DUDE, THERE'S MORE FILES THAN THAT IN THOSE FOLDERS. WHAT'S UP WITH THAT?
 
