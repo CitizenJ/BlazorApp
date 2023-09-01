@@ -21,7 +21,7 @@
  - Data
    - DataService.cs: Class containing the public database-related functions that are called from the webpage, which then make function calls to DataAccessLayer.cs to actually execute these functions. Some of these are executed asynchronously as Tasks.
  - DataAccess
-   - DataAccessLayer.cs: As mentioned above, this class is the one that actually execute database functions, using an instance of BlazorContext.cs to call functions with similar functionality to SQL queries.
+   - DataAccessLayer.cs: As mentioned above, this class is the one that actually executes database functions, using an instance of BlazorContext.cs to call functions with similar functionality to SQL queries.
  - Models
    - Author.cs: A class representing Author database table, with variables as columns.
    - Book.cs: As above, but for books.
