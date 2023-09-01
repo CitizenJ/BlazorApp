@@ -5,7 +5,7 @@
  ON THE SURFACE
 
  Basically, this is a Blazor-based web application for listing authors and their books. The user can select an author from a dropdown menu, which will load a table of books written by the author asynchronously (basically, without requiring reload of the entire 
- page). The user is capable of adding new authors as well as books, as well deleting books. These actions also occur asynchronously, and the user will see the changes come to effect practically instantly.
+ page). The user is capable of adding new authors as well as books, as well as deleting books. These actions also occur asynchronously, and the user will see the changes come to effect practically instantly.
 
  UNDER THE HOOD
 
