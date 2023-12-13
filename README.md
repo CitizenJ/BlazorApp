@@ -16,7 +16,7 @@
 
  STRUCTURE
 
- The most relevants parts of this application are divided in four layers, physically represented as folders containing relevant files. These are as follows:
+ The most relevant parts of this application are divided in four layers, physically represented as folders containing relevant files. These are as follows:
 
  - Data
    - DataService.cs: Class containing the public database-related functions that are called from the webpage, which then make function calls to DataAccessLayer.cs to actually execute these functions. Some of these are executed asynchronously as Tasks.
